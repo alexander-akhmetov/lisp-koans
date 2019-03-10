@@ -49,9 +49,41 @@
 ;
 ; Your goal is to write the score method.
 
+(defun calculate-increment (num counter)
+  (let ((total 0))
+    (when (eq num 1)
+      ; set of three "1" is worth 1000
+      (incf total (* 1000 (floor counter 3)))  ; with 5 attempts max this FLOOR is unnecessary
+      ; a "1" that IS NOT part of a set is worth 100
+      (incf total (* 100 (rem counter 3))))
+
+    (unless (eq num 1)
+      ; set of other three is worth 100 * number
+      (when (>= counter 3)
+        ; with 5 attempts max this FLOOR is unnecessary
+        (incf total (* (* 100 num) (floor counter 3)))))
+
+    (when (eq num 5)
+      ; a "5" (that IS NOT part of a set) is worth 50 points
+      (incf total (* 50 (rem counter 3))))
+
+    total))
+
 (defun score (dice)
-  ; You need to write this method
-)
+  (let ((total 0) (attempts (make-hash-table)))
+
+    ; could be a vector with 6 items
+    (dolist (i dice)
+      (setf cur (gethash i attempts 0))
+      (setf (gethash i attempts) (1+ cur)))
+
+    (loop for num being the hash-keys in attempts
+          using (hash-value counter)
+          do (incf total (calculate-increment num counter)))
+
+    total))
+
+(score '(5 5 5))
 
 (define-test test-score-of-an-empty-list-is-zero
     (assert-equal 0 (score nil)))

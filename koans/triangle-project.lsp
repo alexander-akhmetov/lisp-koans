@@ -17,8 +17,42 @@
 
 (define-condition triangle-error  (error) ())
 
+(defun triangle-inequality-fail (a b c)
+  "Returns T for given trialgle if it fails trialgle inequality statement"
+  (or (>= c (+ a b)) (>= b (+ a c)) (>= a (+ b c))))
+
+(defun invalid-triangle (a b c)
+   "If the triangle is invalid, returns 'triangle-error,
+    otherwise returns NIL"
+   (cond ((or (eq a 0)
+              (eq b 0)
+              (eq c 0))
+          (make-condition 'triangle-error))
+         ((or (< a 0)
+              (< b 0)
+              (< c 0))
+          (make-condition 'triangle-error))
+         ((triangle-inequality-fail a b c)
+          (make-condition 'triangle-error))))
+
 (defun triangle (a b c)
-  :write-me)
+  "Returns type if the triangle by lengths of it's sides: a b c
+
+  Possible types:
+    :equilateral
+    :isosceles
+    :scalene
+
+  Returns an error 'triangle-error if it's not a triangle
+  "
+  (cond ((invalid-triangle a b c))
+        ((and (eq a b)
+              (eq b c))
+         :equilateral)
+        ((or (eq a b)
+             (eq b c)
+             (eq a c)) :isosceles)
+        (t :scalene)))
 
 
 (define-test test-equilateral-triangles-have-equal-sides
